@@ -10,6 +10,16 @@ public class EmployeeModel {
     public EmployeeModel() {
     }
 
+    public EmployeeModel(String employeeId, String employeeName, String dob, int age, String phoneNumber, String email, String doj) {
+        EmployeeId = employeeId;
+        EmployeeName = employeeName;
+        Dob = dob;
+        this.age = age;
+        PhoneNumber = phoneNumber;
+        Email = email;
+        Doj = doj;
+    }
+
     public String getEmployeeId() {
         return EmployeeId;
     }
@@ -77,5 +87,10 @@ public class EmployeeModel {
                 ", Email='" + Email + '\'' +
                 ", Doj='" + Doj + '\'' +
                 '}';
+    }
+
+    public String getInsertQuery(){
+        return "INSERT INTO Employee2 (EmployeeId, EmployeeName, Dob,age,PhoneNumber,Email,Doj)\n" +
+                "VALUES (\'"+EmployeeId+"\',\'"+ EmployeeName+"\',\'"+ Dob+"\',"+age+",\'"+PhoneNumber+"\',\'"+Email+"\',\'"+Doj+"\');";
     }
 }

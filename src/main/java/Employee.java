@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -27,10 +28,12 @@ Reviewed By: Jaya
 */
 
 public class Employee {
+    public  static final String AGE_KEY="age";
+    public  static final String MSG_KEY="msg";
+
     public static void main(String... employee)  throws Exception {
         JDBCExample connecttoDB = new JDBCExample();
         System.out.println(fetchUserData(connecttoDB).toString());
-
         System.out.println("Do you want to fetch all data 1=yes, 0=No");
         int fetch=getInputAsInt();
         if (fetch==1)
@@ -51,7 +54,13 @@ public class Employee {
           The try statement allows you to define a block of code to be tested for errors while it is being executed.
 
          */
-            employeeModel.setDob(getEmployeeDob());
+            String dob=getEmployeeDob();
+            employeeModel.setDob(dob);
+            System.out.println("Enter Employee AGE");
+            HashMap<String,String> hashMap=getEmployeeAge(dob);
+            System.out.println("Age: "+hashMap.get(AGE_KEY)+" "+hashMap.get(MSG_KEY));
+            if (!hashMap.get(MSG_KEY).equals("Eligible"))
+                System.exit(0);
         } catch (ParseException | AgeException e) {
         /*
 
@@ -65,8 +74,7 @@ public class Employee {
             e.printStackTrace();
         }
 
-        System.out.println("Enter Employee AGE");
-        employeeModel.setAge(getEmployeeAge());
+
         System.out.println("Enter Employee Phone Number");
         employeeModel.setPhoneNumber(getEmployeePhoneNumber());
         System.out.println("Enter Employee Email");
@@ -118,16 +126,16 @@ public class Employee {
 
      */
     private static String getEmployeeDob() throws ParseException, AgeException {
-        String Name=getInputAsString();
-        if (Name==null){
+        String dob=getInputAsString();
+        if (dob==null){
             System.out.println("Please enter Date");
             return getEmployeeDob();
         }else {
-            if (!Name.contains("/")){
+            if (!dob.contains("/")){
                 System.out.println("Please use / to sepearate Date");
                 return getEmployeeDob();
             }else{
-                String[] dates=Name.split("/");
+                String[] dates=dob.split("/");
                 if (dates.length!=3) {
                     System.out.println("Please enter valid Date");
                     return getEmployeeDob();
@@ -139,33 +147,34 @@ public class Employee {
                         System.out.println("Please don't enter the future Date");
                         return getEmployeeDob();
                     }else{
-                        int age=Period.between(dobDate, todayDate).getYears();
-                        if (age>16&&age<60)
-                            return Name;
-                        else{
-                            String msg="";
-                            if (age<16)
-                                msg="You are to young to register and your age is "+age;
-                            else if(age>60)
-                                msg="Thanks for all your efforts for "+age+" years. " +
-                                        "Its time to enjoy";
-                            throw new AgeException(msg);
-//                            return getEmployeeDob();
-                        }
+                       return dob;
                     }
                 }
             }
         }
     }
 
-    private static int getEmployeeAge(){
-        int age=getInputAsInt();
-        if (age>16&&age<60)
-            return age;
-        else{
-            System.out.println("Sorry not an eligible candidate");
-            return 0;
+    private static HashMap<String,String> getEmployeeAge(String dob){
+        HashMap<String,String> hashMap=new HashMap<>();
+        String[] dates=dob.split("-");
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        LocalDate dobDate = LocalDate.parse(dates[0]+"/"+dates[1]+"/"+dates[2], dtf);
+        LocalDate todayDate = LocalDate.now();
+        int age=Period.between(dobDate, todayDate).getYears();
+        if (age>16&&age<60) {
+            hashMap.put(AGE_KEY,String.valueOf(age));
+            hashMap.put(MSG_KEY,"Eligible");
+        }else{
+            String msg="";
+            if (age<16)
+                msg="You are to young to register and your age is "+age;
+            else if(age>60)
+                msg="Thanks for all your efforts for "+age+" years. " +
+                        "Its time to enjoy";
+            hashMap.put(AGE_KEY,String.valueOf(age));
+            hashMap.put(MSG_KEY,msg);
         }
+        return hashMap;
     }
 
     private static String getEmployeePhoneNumber(){

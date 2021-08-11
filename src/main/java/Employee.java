@@ -3,10 +3,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.text.ParseException;
@@ -27,20 +24,22 @@ Modified On:04-08-2021 01:10 pm
 Reviewed By: Jaya
 */
 
-public class Employee {
+public class Employee extends EmployeeDaoImpl{
+
     public  static final String AGE_KEY="age";
     public  static final String MSG_KEY="msg";
-
     public static void main(String... employee)  throws Exception {
-        JDBCExample connecttoDB = new JDBCExample();
-        System.out.println(fetchUserData(connecttoDB).toString());
+
+
+//        System.out.println(fetchUserData(connecttoDB).toString());
         System.out.println("Do you want to fetch all data 1=yes, 0=No");
         int fetch=getInputAsInt();
-        if (fetch==1)
-            System.out.println(Arrays.toString(connecttoDB.fetchEmployees().toArray(new EmployeeModel[0])));
+//        if (fetch==1)
+//            System.out.println(Arrays.toString(connecttoDB.fetchEmployees().toArray(new EmployeeModel[0])));
     }
 
-    private static EmployeeModel fetchUserData(JDBCExample connecttoDB){
+
+    private static EmployeeModel fetchUserData(){
         EmployeeModel employeeModel=new EmployeeModel();
         System.out.println("\t\t\t\tWelcome to Aspire...");
         System.out.println("Enter Employee ID");
@@ -81,7 +80,7 @@ public class Employee {
         employeeModel.setEmail(getEmployeeEmail());
         System.out.println("Enter Employee DOJ for exp: dd/MM/yyyy");
         employeeModel.setDoj(getEmployeeDoj());
-        connecttoDB.pushEmployee(employeeModel);
+
         return employeeModel;
     }
     private static String getEmployeeID(){
@@ -229,6 +228,4 @@ public class Employee {
         Scanner scanner=new Scanner(System.in);
         return scanner.nextInt();
     }
-
-
 }

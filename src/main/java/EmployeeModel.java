@@ -1,4 +1,5 @@
 public class EmployeeModel {
+
     private String EmployeeId;
     private String EmployeeName;
     private String Dob;
@@ -78,15 +79,14 @@ public class EmployeeModel {
 
     @Override
     public String toString() {
-        return "Employee Details{" +
-                "EmployeeId='" + EmployeeId + '\'' +
-                ", EmployeeName='" + EmployeeName + '\'' +
-                ", Dob='" + Dob + '\'' +
-                ", age=" + age +
-                ", PhoneNumber='" + PhoneNumber + '\'' +
-                ", Email='" + Email + '\'' +
-                ", Doj='" + Doj + '\'' +
-                '}';
+        return   "---Details of " + EmployeeId + "---\n" +
+                "   EmployeeName=" + EmployeeName + "\n" +
+                "   EmployeeID=" + EmployeeId+ "\n" +
+                "   Dob=" + Dob + "\n" +
+                "   age=" + age + "\n" +
+                "   PhoneNumber=" + PhoneNumber + "\n" +
+                "   Email=" + Email + "\n" +
+                "   Doj=" + Doj + "\n";
     }
 
     public String getInsertQuery(){

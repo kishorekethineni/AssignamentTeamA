@@ -1,144 +1,181 @@
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
+import okhttp3.*;
+
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.sql.*;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class EmployeeDaoImpl extends DBConnection implements EmployeeDao{
 
-
+    private static final String BASE_URL="https://ancient-harbor-78065.herokuapp.com/api/";
     @Override
     public HashMap<String,String> Insert(EmployeeModel employee) {
-        HashMap<String,String> resultMap=new HashMap<>();
+        System.out.println("Loading...");
+        HashMap<String,String> hashMap=new HashMap<>();
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .build();
+        MediaType mediaType = MediaType.parse("application/json");
+        RequestBody body = RequestBody.create(mediaType,employee.toJsonObject());
+        Request request = new Request.Builder()
+                .url(BASE_URL+"employees")
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
         try {
-            Connection c = getConnection();
-            PreparedStatement ps = null;
-            try {
-                ps = c.prepareStatement(
-                        "INSERT INTO Employee2 (EmployeeId, EmployeeName, Dob,age,PhoneNumber,Email,Doj)\n" +
-                                "VALUES (?, ?, ?, ?, ?, ?, ?);",
-                        new String[]{"EmployeeId"});
-
-                ps.setString(1, employee.getEmployeeId());
-                ps.setString(2, employee.getEmployeeName());
-                ps.setString(3, employee.getDob());
-                ps.setInt(4, employee.getAge());
-                ps.setString(5, employee.getPhoneNumber());
-                ps.setString(6, employee.getEmail());
-                ps.setString(7, employee.getDoj());
-                ps.executeUpdate();
-                ResultSet rs = ps.getGeneratedKeys();
-                while (rs.next()) {
-                    String id = rs.getString(0);
-                    employee.setEmployeeId(id);
-                }
-                resultMap.put(UTILS.KEY,"Success");
-                resultMap.put(UTILS.MSG,"Inserted");
-                return resultMap;
-            } catch (Exception e) {
-                e.printStackTrace();
-                resultMap.put(UTILS.KEY,"Failed");
-                resultMap.put(UTILS.MSG,e.getMessage());
-                return resultMap;
+            Response response = client.newCall(request).execute();
+            String responseString=response.body().string();
+            JsonElement jelement = new JsonParser().parse(responseString);
+            JsonObject  jobject = jelement.getAsJsonObject();
+            if (jobject.has("message")){
+                hashMap.put(UTILS.MSG,jobject.get("message").getAsString());
+//                hashMap.put(UTILS.KEY,jobject.get("employeeId").getAsString());
+            }else{
+                hashMap.put(UTILS.MSG,"Unable to connect to server");
+                hashMap.put(UTILS.KEY,"");
             }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-            resultMap.put(UTILS.KEY,"Failed");
-            resultMap.put(UTILS.MSG,throwables.getMessage());
-            return resultMap;
+        } catch (IOException e) {
+            e.printStackTrace();
+            hashMap.put(UTILS.MSG,e.getMessage());
+            hashMap.put(UTILS.KEY,"");
         }
+        return hashMap;
     }
 
     @Override
     public List<EmployeeModel> GetAll() {
+        System.out.println("Loading...");
         List<EmployeeModel> list = new ArrayList<EmployeeModel>();
-        Connection c = null;
-        String sql = "SELECT * FROM Employees.Employee2";
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .build();
+        Request request = new Request.Builder()
+                .url(BASE_URL+"employees")
+                .method("GET", null)
+                .build();
         try {
-            c = DBConnection.getConnection();
-            Statement s = c.createStatement();
-            ResultSet rs = s.executeQuery(sql);
-            while (rs.next()) {
-                list.add(processRow(rs));
-            }
-        } catch (SQLException e) {
+            Response response = client.newCall(request).execute();
+            String responseString=response.body().string();
+            Gson gson = new Gson();
+            Type listType = new TypeToken<List<EmployeeModel>>(){}.getType();
+            list .addAll( gson.fromJson(responseString, listType));
+        } catch (IOException e) {
             e.printStackTrace();
-            throw new RuntimeException(e);
-        } finally {
-            DBConnection.close(c);
+            System.out.println(e.getMessage());
         }
         return list;
     }
 
     @Override
     public EmployeeModel GetSpecific(String id) {
-        String sql = "SELECT * FROM Employee2 WHERE EmployeeId = ?";
-        EmployeeModel Employee = null;
-        Connection c = null;
-        try {
-            c = getConnection();
-            PreparedStatement ps = c.prepareStatement(sql);
-            ps.setString(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                Employee = processRow(rs);
-            }
+        System.out.println("Loading...");
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .build();
+        Request request = new Request.Builder()
+                .url(BASE_URL+"employees?id="+id)
+                .method("GET", null)
+                .build();
+        try{
+            Response response = client.newCall(request).execute();
+            String responseString=response.body().string();
+            Gson gson = new Gson();
+            return gson.fromJson(responseString, EmployeeModel.class);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException(e);
-        } finally {
-            DBConnection.close(c);
+            System.out.println(e.getMessage());
+            return null;
         }
-        return Employee;
     }
 
     @Override
     public HashMap<String,String> Delete(String id) {
+        System.out.println("Loading...");
         HashMap<String, String> hashMap=new HashMap<>();
-        Connection c = null;
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .build();
+        MediaType mediaType = MediaType.parse("text/plain");
+        RequestBody body = RequestBody.create(mediaType, "");
+        Request request = new Request.Builder()
+                .url(BASE_URL+"deleteEmployee/"+id)
+                .method("DELETE", body)
+                .build();
         try {
-            c = DBConnection.getConnection();
-            PreparedStatement ps = c
-                    .prepareStatement("DELETE FROM Employee2 WHERE EmployeeId=?");
-            ps.setString(1, id);
-            int count = ps.executeUpdate();
-            if (count==1){
-                hashMap.put(UTILS.KEY,"Success");
-                hashMap.put(UTILS.MSG,"Deleted");
+            Response response = client.newCall(request).execute();
+            JsonElement jelement = new JsonParser().parse(response.body().string());
+            JsonObject  jobject = jelement.getAsJsonObject();
+            if (jobject.has("message")){
+                hashMap.put(UTILS.MSG,jobject.get("message").getAsString());
+                hashMap.put(UTILS.KEY,jobject.get("employeeId").getAsString());
             }else{
+                hashMap.put(UTILS.MSG,"Unable to connect to server");
                 hashMap.put(UTILS.KEY,"Failed");
-                hashMap.put(UTILS.MSG,"Not found");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            hashMap.put(UTILS.KEY,"Failed");
             hashMap.put(UTILS.MSG,e.getMessage());
+            hashMap.put(UTILS.KEY,"Failed");
         }
         return hashMap;
     }
 
     @Override
     public HashMap<String, String> Update(EmployeeModel employee) {
+        System.out.println("Loading...");
         HashMap<String, String> hashMap=new HashMap<>();
         try {
-            Connection c = getConnection();
-            PreparedStatement ps = c
-                    .prepareStatement("UPDATE Employee2 SET EmployeeName=?, Dob=?, age=?, PhoneNumber=?, Email=?, Doj=?  WHERE EmployeeId=?");
-            ps.setString(1, employee.getEmployeeName());
-            ps.setString(2, employee.getDob());
-            ps.setInt(3,    employee.getAge());
-            ps.setString(4, employee.getPhoneNumber());
-            ps.setString(5, employee.getEmail());
-            ps.setString(6, employee.getDoj());
-            ps.setString(7, employee.getEmployeeId());
-            ps.executeUpdate();
-            hashMap.put(UTILS.KEY,"Success");
-            hashMap.put(UTILS.MSG,"Updated");
-        } catch (SQLException e) {
-            e.printStackTrace();
+            OkHttpClient client = new OkHttpClient().newBuilder()
+                    .build();
+            MediaType mediaType = MediaType.parse("application/json");
+            RequestBody body = RequestBody.create(mediaType, employee.toJsonObject());
+            Request request = new Request.Builder()
+                    .url(BASE_URL+"updateEmployee")
+                    .method("PUT", body)
+                    .addHeader("Content-Type", "application/json")
+                    .build();
+            Response response = client.newCall(request).execute();
+            JsonElement jelement = new JsonParser().parse(response.body().string());
+            JsonObject  jobject = jelement.getAsJsonObject();
+            if (jobject.has("message")){
+                hashMap.put(UTILS.MSG,jobject.get("message").getAsString());
+                hashMap.put(UTILS.KEY,jobject.get("employeeId").getAsString());
+            }else{
+                hashMap.put(UTILS.MSG,"Unable to connect to server");
+                hashMap.put(UTILS.KEY,"Failed");
+            }
+        } catch (Exception throwables) {
+        	throwables.printStackTrace();
             hashMap.put(UTILS.KEY,"Failed");
-            hashMap.put(UTILS.MSG,e.getMessage());
-            throw new RuntimeException(e);
+            hashMap.put(UTILS.MSG,throwables.getMessage());
         }
         return hashMap;
     }
+
+	@Override
+	public List<String> fetchIds(String coloumn) {
+        System.out.println("Loading...");
+		 List<String> list = new ArrayList<String>();
+	        Connection connection = null;
+	        String sql = "SELECT "+coloumn+" FROM Employees.Employee2";
+	        try {
+	            connection=getConnection();
+	            Statement statement = connection.createStatement();
+	            ResultSet resultset = statement.executeQuery(sql);
+	            while (resultset.next()) {
+	                list.add(resultset.getString(1));
+	            }
+	        } catch (SQLException throwables) {
+	        	throwables.printStackTrace();
+	            throw new RuntimeException(throwables);
+	        } finally {
+	            DBConnection.close(connection);
+	        }
+	        return list;
+	}
 }

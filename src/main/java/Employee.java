@@ -54,7 +54,7 @@ public class Employee extends EmployeeDaoImpl{
 
          */
             String dob=getEmployeeDob();
-            employeeModel.setDob(dob);
+            employeeModel.setDateOfBirth(dob);
             System.out.println("Enter Employee AGE");
             HashMap<String,String> hashMap=getEmployeeAge(dob);
             System.out.println("Age: "+hashMap.get(AGE_KEY)+" "+hashMap.get(MSG_KEY));
@@ -79,7 +79,7 @@ public class Employee extends EmployeeDaoImpl{
         System.out.println("Enter Employee Email");
         employeeModel.setEmail(getEmployeeEmail());
         System.out.println("Enter Employee DOJ for exp: dd/MM/yyyy");
-        employeeModel.setDoj(getEmployeeDoj());
+        employeeModel.setDateOfJoining(getEmployeeDoj());
 
         return employeeModel;
     }

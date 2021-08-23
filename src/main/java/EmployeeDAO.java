@@ -13,5 +13,7 @@ public interface EmployeeDao {
     HashMap<String,String> Delete(String id);
 
     HashMap<String,String> Update(EmployeeModel model);
+    
+    List<String> fetchIds(String colomn);
 
 }

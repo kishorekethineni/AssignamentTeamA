@@ -1,24 +1,35 @@
 public class EmployeeModel {
 
+
     private String EmployeeId;
+
     private String EmployeeName;
-    private String Dob;
-    private int age;
+
+    private String DateOfBirth;
+
+    private int Age;
+
     private String PhoneNumber;
+
     private String Email;
-    private String Doj;
 
-    public EmployeeModel() {
-    }
+    private String DateOfJoining;
 
-    public EmployeeModel(String employeeId, String employeeName, String dob, int age, String phoneNumber, String email, String doj) {
+
+
+
+    public EmployeeModel(String employeeId, String employeeName, String dateOfBirth, int age, String phoneNumber, String email, String dateOfJoining) {
         EmployeeId = employeeId;
         EmployeeName = employeeName;
-        Dob = dob;
-        this.age = age;
+        DateOfBirth = dateOfBirth;
+        Age = age;
         PhoneNumber = phoneNumber;
         Email = email;
-        Doj = doj;
+        DateOfJoining = dateOfJoining;
+    }
+
+    public EmployeeModel() {
+
     }
 
     public String getEmployeeId() {
@@ -37,20 +48,20 @@ public class EmployeeModel {
         EmployeeName = employeeName;
     }
 
-    public String getDob() {
-        return Dob;
+    public String getDateOfBirth() {
+        return DateOfBirth;
     }
 
-    public void setDob(String dob) {
-        Dob = dob;
+    public void setDateOfBirth(String dateOfBirth) {
+        DateOfBirth = dateOfBirth;
     }
 
     public int getAge() {
-        return age;
+        return Age;
     }
 
     public void setAge(int age) {
-        this.age = age;
+        Age = age;
     }
 
     public String getPhoneNumber() {
@@ -69,12 +80,12 @@ public class EmployeeModel {
         Email = email;
     }
 
-    public String getDoj() {
-        return Doj;
+    public String getDateOfJoining() {
+        return DateOfJoining;
     }
 
-    public void setDoj(String doj) {
-        Doj = doj;
+    public void setDateOfJoining(String dateOfJoining) {
+        DateOfJoining = dateOfJoining;
     }
 
     @Override
@@ -82,15 +93,27 @@ public class EmployeeModel {
         return   "---Details of " + EmployeeId + "---\n" +
                 "   EmployeeName=" + EmployeeName + "\n" +
                 "   EmployeeID=" + EmployeeId+ "\n" +
-                "   Dob=" + Dob + "\n" +
-                "   age=" + age + "\n" +
+                "   Dob=" + DateOfBirth + "\n" +
+                "   age=" + Age + "\n" +
                 "   PhoneNumber=" + PhoneNumber + "\n" +
                 "   Email=" + Email + "\n" +
-                "   Doj=" + Doj + "\n";
+                "   Doj=" + DateOfJoining + "\n";
     }
 
     public String getInsertQuery(){
         return "INSERT INTO Employee2 (EmployeeId, EmployeeName, Dob,age,PhoneNumber,Email,Doj)\n" +
-                "VALUES (\'"+EmployeeId+"\',\'"+ EmployeeName+"\',\'"+ Dob+"\',"+age+",\'"+PhoneNumber+"\',\'"+Email+"\',\'"+Doj+"\');";
+                "VALUES (\'"+EmployeeId+"\',\'"+ EmployeeName+"\',\'"+ DateOfBirth+"\',"+Age+",\'"+PhoneNumber+"\',\'"+Email+"\',\'"+DateOfJoining+"\');";
+    }
+
+    public String toJsonObject(){
+        return "{\n" +
+                "    \"employeeId\": \""+EmployeeId+"\",\n" +
+                "    \"employeeName\": \""+EmployeeName+"\",\n" +
+                "    \"dateOfBirth\": \""+DateOfBirth+"\",\n" +
+                "    \"age\": "+Age+",\n" +
+                "    \"phoneNumber\": \""+PhoneNumber+"\",\n" +
+                "    \"email\": \""+Email+"\",\n" +
+                "    \"dateOfJoining\": \""+DateOfJoining+"\"\n" +
+                "}";
     }
 }
